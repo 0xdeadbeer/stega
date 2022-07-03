@@ -69,16 +69,16 @@ def unstega_function(location):
     try: 
         for y_index in range(y_pos, y_end): 
             for x_index in range(x_pos, x_end):
-                xxxxxx = ((y_index - y_pos) * y_range_width) + (x_index - x_pos)
+                index = ((y_index - y_pos) * y_range_width) + (x_index - x_pos)
 
                 # [DEBUG]
                 # print ("Pixel: y -> " + str(y_index) + ", x -> " + str(x_index) + ", index -> " + str(index)) 
 
                 r,g,b = image_data[y_index][x_index]
                 the_sus_bit = 0
-                if (xxxxxx % 2 == 0): 
+                if (index % 2 == 0): 
                     the_sus_bit = get_bit(r, 0)
-                elif (xxxxxx % 7 == 0):
+                elif (index % 7 == 0):
                     the_sus_bit = get_bit(g, 1)
                 else:
                     the_sus_bit = get_bit(b, 0) 
