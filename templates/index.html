@@ -39,6 +39,12 @@
             <li>.PNG</li>
             <li>.JPG && .JPEG</li>
         </ul>
+
+        <p><b>Warning</b>: </p>
+        <ul>
+            <li>Images should not be any more than 1500 pixels in width/height</li>
+            <li>Images should not be larger than ~6MB</li>
+        </ul>
         <hr>
 
         <p>
@@ -57,7 +63,9 @@
                         <label for="formFile" class="form-label">Image to hide data into</label>
                         <input class="form-control" type="file" id="decoy-file">
                     </div>
-
+                    <div>
+                        <small class="text-primary" id="stega-status-text"></small>
+                    </div>
                     <div class="my-3">
                         <button type="button" class="btn btn-primary" id="hide-btn">Hide!</button>
                     </div>
@@ -71,7 +79,9 @@
                         <label for="formFile" class="form-label">Image from which the hidden data should be extracted</label>
                         <input class="form-control" type="file" id="suspicious-file">
                     </div>
-
+                    <div>
+                        <small class="text-primary" id="unstega-status-text"></small>
+                    </div>
                     <div class="my-3">
                         <button type="button" class="btn btn-primary" id="extract-btn">Extract!</button>
                     </div>
@@ -108,6 +118,10 @@
         <script type="text/javascript">
 
             $("#extract-btn").click((e) => {
+
+                // set state 
+                $("#unstega-status-text").html("Loading, please wait..");
+
                 e.preventDefault();
                 let form_data = new FormData(); 
                 let file_data = $("#suspicious-file")[0].files; 
@@ -126,8 +140,9 @@
                     processData: false,
                     contentType: false,
                     success: function(response){
-                        // console.log(response)
-
+                        
+                        // set state 
+                        $("#unstega-status-text").html(""); 
                         $("#extracted-info-text-area").html(response)
                         var extractedInfoModal = new bootstrap.Modal(document.getElementById('extracted-content-modal'), {
                             keyboard: false
@@ -140,6 +155,9 @@
             })
 
             $("#hide-btn").click(() => {
+                // set state 
+                $("#stega-status-text").html("Loading, please wait.."); 
+
                 let data_to_hide = $("#data-to-hide").val();
                 let form_data = new FormData(); 
                 let file_data = $("#decoy-file")[0].files; 
@@ -162,6 +180,9 @@
                         responseType: 'blob' 
                     },
                     success: function(response){
+                        // set state 
+                        $("#stega-status-text").html(""); 
+
                         var binaryData = [];
                         binaryData.push(response);
                         const blob = window.URL.createObjectURL(new Blob(binaryData, {type: "image/png"})); 

@@ -88,6 +88,7 @@ def stega():
 @app.route("/unstega", methods=['POST'])
 def unstega(): 
     try: 
+        
         stega_image = request.files.get("file")
 
         file_name, file_extension = os.path.splitext(stega_image.filename)
