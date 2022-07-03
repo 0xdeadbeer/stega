@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stega Web | Osamu-KJ</title>
+
+    <!-- import bootstrap -->
+    
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous"></script>
+    
+    <!-- import bootstrap -->
+
+    <!-- import jquery -->
+
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- import jquery -->
+
+</head>
+<body>
+    
+    <div class="container mt-5">
+        <h1>Stega Web</h1>
+        <p>Author: <a href="https://github.com/osamu-kj/">Osamu</a></p>
+
+        <br>
+        <p>App based on: </p>
+        <ul>
+            <li>jQuery & web</li>
+            <li>Python, Flask, OpenCV2</li>
+            <li>Big brain and 10 hours of suffering &gt;.&lt;</li>
+        </ul>
+
+        <p>Allowed file extensions: </p>
+        <ul>
+            <li>.PNG</li>
+            <li>.JPG && .JPEG</li>
+        </ul>
+        <hr>
+
+        <p>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#stega" aria-expanded="false" aria-controls="stega">Hide data into the image</button>
+            <button class="btn btn-outline-primary" type="button" data-bs-toggle="collapse" data-bs-target="#unstega" aria-expanded="false" aria-controls="unstega">Extract data from the image</button>
+        </p>
+
+        <div class="w-100 my-2">
+            <div class="collapse multi-collapse" id="stega">
+                <div class="card card-body border border-primary">
+                    <div class="col-auto">
+                        <label for="data-to-hide" class="visually-hidden">Data to hide into the image: </label>
+                        <input class="form-control" id="data-to-hide" placeholder="Enter Data: ">
+                    </div>
+                    <div class="my-3">
+                        <label for="formFile" class="form-label">Image to hide data into</label>
+                        <input class="form-control" type="file" id="decoy-file">
+                    </div>
+
+                    <div class="my-3">
+                        <button type="button" class="btn btn-primary" id="hide-btn">Hide!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="w-100 my-2">
+            <div class="collapse multi-collapse" id="unstega">
+                <div class="card card-body border border-primary">
+                    <div class="my-3">
+                        <label for="formFile" class="form-label">Image from which the hidden data should be extracted</label>
+                        <input class="form-control" type="file" id="suspicious-file">
+                    </div>
+
+                    <div class="my-3">
+                        <button type="button" class="btn btn-primary" id="extract-btn">Extract!</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="result"></div>
+    </div>
+
+    <div class="modal fade" id="extracted-content-modal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-title">Extracted info</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="extracted-info-text-area" class="form-label">Extracted information</label>
+                        <br>
+                        <small><b>Tip: consider taking a look at the top (start) of the extracted information</b></small>
+                        <textarea class="form-control" id="extracted-info-text-area" disabled rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- local js -->
+    
+        <script type="text/javascript">
+
+            $("#extract-btn").click((e) => {
+                e.preventDefault();
+                let form_data = new FormData(); 
+                let file_data = $("#suspicious-file")[0].files; 
+
+                if (file_data.length < 0) {
+                    alert("You must upload an image with >0 bytes");
+                    return; 
+                }
+
+                form_data.append("file", file_data[0]);
+                
+                $.ajax({
+                    url: "http://localhost:5000/unstega",
+                    type: "POST",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    success: function(response){
+                        // console.log(response)
+
+                        $("#extracted-info-text-area").html(response)
+                        var extractedInfoModal = new bootstrap.Modal(document.getElementById('extracted-content-modal'), {
+                            keyboard: false
+                        }); 
+
+                        extractedInfoModal.toggle();
+
+                    }
+                })
+            })
+
+            $("#hide-btn").click(() => {
+                let data_to_hide = $("#data-to-hide").val();
+                let form_data = new FormData(); 
+                let file_data = $("#decoy-file")[0].files; 
+                
+                if (file_data.length < 0) {
+                    alert("You must upload an image with >0 bytes");
+                    return; 
+                }
+                
+                form_data.append("file", file_data[0]);
+                form_data.append("data", data_to_hide);
+
+                $.ajax({
+                    url: "http://localhost:5000/stega",
+                    type: "POST",
+                    data: form_data,
+                    processData: false,
+                    contentType: false,
+                    xhrFields: {
+                        responseType: 'blob' 
+                    },
+                    success: function(response){
+                        var binaryData = [];
+                        binaryData.push(response);
+                        const blob = window.URL.createObjectURL(new Blob(binaryData, {type: "image/png"})); 
+                        const anchor = document.createElement('a');
+                        anchor.style.display = 'none';
+                        anchor.href = blob;
+                        anchor.download = "stegaaaa :eyes:.png";
+                        document.body.appendChild(anchor);
+                        anchor.click();
+                        window.URL.revokeObjectURL(blob);
+                    }
+                })
+            })
+
+        </script>
+    
+    <!-- local js -->
+
+</body>
+</html>
